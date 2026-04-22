@@ -6,20 +6,23 @@ Modular, GitHub-ready version of the lead-acid electrolyte statistical analysis 
 
 - This repository is based on the following research article:
 - **Electrochemical Performance Enhancement of Lead–Acid Batteries through Electrolyte Modification**
-- **Article authors:** Fahimeh Gholami, Javad Asghari, Arash Ghazitabar, Shaahin Esfandiyari, Seyed Mehdi Orouji, Malek Naderi
+- **Article authors:** Fahimeh Gholami, Javad Asghari, Ali Pilehvar Meibody , Arash Ghazitabar, Shaahin Esfandiyari, Seyed Mehdi Orouji, Malek Naderi
 - Main author of the Python code in this repository: **Ali Pilehvar Meibody**.
 - **Code author affiliation:** Department of Applied Science and Technology, Politecnico di Torino, Torino, Italy; Graphene and Advanced Materials Laboratory (GAMLab.), Tehran, Iran.
 
-### Article Affiliations
 
-1. Department of Materials and Metallurgical Engineering, Amirkabir University of Technology (Tehran Polytechnic), Hafez Ave., Tehran, Iran.
-2. Graphene and Advanced Materials Laboratory (GAMLab.), Tehran, Iran.
-3. Department of Inorganic Pigments and Glazes, Institute for Color Science and Technology (ICST), Tehran, Iran.
-4. School of Metallurgy and Materials Engineering, College of Engineering, University of Tehran, P.O. Box 11155-4563, Tehran, Iran.
 
 ### Abstract
 
 Lead–acid battery performance is significantly constrained by negative-plate sulfation and parasitic hydrogen and oxygen evolution reactions at electrodes, all of which accelerate capacity fading and reduce service life. Additive engineering offers a direct approach to mitigate these degradation pathways. In this work, a simplified electrolyte formulation is proposed to simultaneously improve the behavior of both electrodes by influencing the interfacial kinetics at the anode and cathode. Although metal sulfates and mineral acids are known individual modifiers, their synergistic interactions remain insufficiently understood. To address this gap, a data-driven statistical framework combining Pearson correlation analysis, factorial and quadratic response-surface modeling, Type II ANOVA, effect size quantification, and multi-response composite scoring was developed alongside the electrochemical investigation to objectively quantify additive contributions and rank all formulations simultaneously.
+
+
+`I_V.png`
+
+![Cyclic voltammetry panels (a–d): 27 electrolytes, first cycle, 10 mV/s](ARTICLE_FIG/I_V.png)
+
+Panels (a–d): cyclic voltammograms of 27 electrolyte formulations, with and without additives, for the first cycle at a scan rate of 10 mV/s.
+
 
 Here, the combined effects of H3PO4, Al2(SO4)3, and MgSO4 were systematically evaluated over concentrations ranging from 0.1–0.5 wt.% for sulfate salts and 0.1–0.2 wt.% for phosphoric acid. Electrochemical (CV, LSV, EIS) and structural (XRD, FESEM) characterizations demonstrate that optimal combinations significantly enhance performance. Statistical modeling confirmed Al2(SO4)3 as the dominant factor across all responses, with the Mg×Al interaction as the only statistically significant ANOVA term for reversibility (F = 5.71, p = 0.018, eta_p^2 = 0.740), and the Al×P interaction as the controlling term for charge-transfer resistance (F = 3.71, p = 0.054, eta_p^2 = 0.650). Multi-response composite scoring across all 27 formulations provided an objective, data-driven basis for optimal sample selection.
 
@@ -83,6 +86,7 @@ Place generated analysis images in the `RESULTS/` folder.
 ## ARTICLE_FIG
 
 Place manuscript/article figures in the `ARTICLE_FIG/` folder.
+
 
 ### Interaction Plot
 
