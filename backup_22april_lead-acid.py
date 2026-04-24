@@ -1,10 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Wed Apr 22 19:57:12 2026
 
 @author: apm
 
+
+Here is first version that as monolothic script we used to run all over 
+and then we produced results
+we get teh results and with use of Canva we create article figure
+then lateer we create micro service of this repo
 
 
 
