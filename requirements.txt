@@ -1,5 +1,25 @@
-pandas
-numpy
-matplotlib
-statsmodels
-openpyxl
+# Pinned from the Python 3.13.2 environment that reproduced Tables 2, D1, and E1–E4.
+pandas==3.1.1
+numpy==2.5.4
+matplotlib==3.11.2
+statsmodels==0.15.0
+openpyxl==3.1.5
+
+# Transitive packages installed in that same environment.
+contourpy==1.4.0
+cycler==0.12.1
+et_xmlfile==2.0.0
+fonttools==4.68.0
+formulaic==1.2.2
+interface_meta==2.0.1
+kiwisolver==1.5.1
+narwhals==2.28.0
+packaging==26.3
+patsy==1.0.3
+pillow==13.0.0
+pyparsing==3.3.3
+python-dateutil==4.0.0
+scipy==1.18.1
+typing_extensions==4.16.0
+tzdata==2026.6
+wrapt==2.6.0.dev1

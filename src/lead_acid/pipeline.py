@@ -1,9 +1,10 @@
 import pandas as pd
+import statsmodels.formula.api as smf
 from statsmodels.stats.anova import anova_lm
 
 from .config import RESPONSES, BEST_MODEL
 from .data import load_and_prepare, prepare_output_dir
-from .modeling import fit_best_model
+from .modeling import fit_best_model, get_formula
 from .plots import (
     save_correlation,
     save_observed_vs_predicted,
@@ -35,6 +36,33 @@ def run_pipeline(input_path: str, output_path: str) -> None:
     save_real_heatmaps(df, RESPONSES, outdir)
     save_predicted_surfaces(df, RESPONSES, outdir)
 
+    # Table 2: reduced factorial vs quadratic OLS comparison.
+    # Preferred model follows BEST_MODEL rather than a fresh adjusted-R² rule.
+    comparison_rows = []
+    for y in RESPONSES:
+        reduced = smf.ols(get_formula(y, "reduced"), data=df).fit()
+        quadratic = smf.ols(get_formula(y, "quadratic"), data=df).fit()
+        comparison_rows.append(
+            {
+                "response": y,
+                "reduced_R2": reduced.rsquared,
+                "quad_R2": quadratic.rsquared,
+                "reduced_Adj_R2": reduced.rsquared_adj,
+                "quad_Adj_R2": quadratic.rsquared_adj,
+                "reduced_AIC": reduced.aic,
+                "quad_AIC": quadratic.aic,
+                "reduced_BIC": reduced.bic,
+                "quad_BIC": quadratic.bic,
+                "preferred_model": (
+                    "Reduced Factorial" if BEST_MODEL[y] == "reduced" else "Quadratic"
+                ),
+            }
+        )
+    with pd.ExcelWriter(outdir / "10_model_comparison.xlsx", engine="openpyxl") as writer:
+        pd.DataFrame(comparison_rows).to_excel(
+            writer, sheet_name="Model_comparison", index=False
+        )
+
     # Effect size by best model
     effect_writer = pd.ExcelWriter(outdir / "16_effect_size_summary.xlsx", engine="openpyxl")
     for y in RESPONSES.keys():
@@ -47,21 +75,7 @@ def run_pipeline(input_path: str, output_path: str) -> None:
         anova_tbl.to_excel(effect_writer, sheet_name=f"{y}_effect_sizes")
     effect_writer.close()
 
-    # Composite score
-    '''
-    opt = df.copy()
-    opt["RevRatio_z"] = _zscore(opt["RevRatio"])
-    opt["DeltaE_good"] = _zscore(-opt["DeltaE"])
-    opt["Overpot_z"] = _zscore(opt["Overpot"])
-    opt["Rct_good"] = _zscore(-opt["Rct"])
-    opt["CompositeScore"] = opt[["RevRatio_z", "DeltaE_good", "Overpot_z", "Rct_good"]].mean(axis=1)
-    opt = opt.sort_values("CompositeScore", ascending=False)
-    opt[
-        ["Sample", "Mg", "Al", "P", "RevRatio", "DeltaE", "Overpot", "Rct", "CompositeScore"]
-    ].to_excel(outdir / "17_composite_score_ranking.xlsx", index=False)
-    '''
-
-        # Composite score
+    # Composite score (Table D1). Same z-score mean as the removed duplicate block.
     opt = df.copy()
     opt["RevRatio_z"] = _zscore(opt["RevRatio"])
     opt["DeltaE_good"] = _zscore(-opt["DeltaE"])
@@ -75,7 +89,7 @@ def run_pipeline(input_path: str, output_path: str) -> None:
     opt[
         ["Sample", "Mg", "Al", "P", "RevRatio", "DeltaE",
          "Overpot", "Rct", "CompositeScore"]
-    ].to_excel(outdir / "17_composite_score_ranking.xlsx", index=False)
+    ].to_excel(outdir / "17_composite_score_ranking.xlsx", sheet_name="Sheet1", index=False)
 
     # Appendix D sensitivity analysis
     # Weight order is RevRatio, DeltaE, Overpot, Rct.

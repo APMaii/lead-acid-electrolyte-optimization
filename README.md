@@ -34,16 +34,21 @@ Lead-acid battery; Electrolyte Additive; Magnesium sulfate; Phosphoric acid; Alu
 
 ## Project Structure
 
-- `run_analysis.py` - Entry point script
-- `src/lead_acid/config.py` - Response metadata and model selection
-- `src/lead_acid/data.py` - Data loading and preprocessing
-- `src/lead_acid/style.py` - Figure style and sample-label annotation helpers
-- `src/lead_acid/modeling.py` - Model formula and fitting helpers
-- `src/lead_acid/plots.py` - Plot generation functions
-- `src/lead_acid/pipeline.py` - End-to-end analysis pipeline
-- `requirements.txt` - Python dependencies
+- `lead_acid_data.xlsx` — input workbook at the repository root. Sheet1 holds the measured responses for all 27 formulations (sample number, MgSO4, Al2(SO4)3, H3PO4, reversibility ratio, peak separation, overpotential, and charge-transfer resistance).
+- `run_analysis.py` — command-line entry point. It reads the input workbook and writes every figure and workbook into the output directory.
+- `src/lead_acid/config.py` — response names, optimization goals, and the `BEST_MODEL` mapping used for the preferred model and for Tables E1–E4.
+- `src/lead_acid/data.py` — loads Sheet1 and builds the analysis table.
+- `src/lead_acid/modeling.py` — reduced-factorial and quadratic OLS formulas (`get_formula`) and the fit helper for the preferred model.
+- `src/lead_acid/pipeline.py` — end-to-end analysis: model comparison (Table 2), Type II ANOVA effect sizes (Tables E1–E4), composite-score ranking (Table D1), and the weighting sensitivity workbook.
+- `src/lead_acid/plots.py` — correlation, diagnostic, heatmap, and response-surface figures.
+- `src/lead_acid/style.py` — figure style and sample-label annotation helpers.
+- `requirements.txt` — Python dependencies pinned to the versions used for the reproduction below.
+- `RESULTS/` — saved outputs from the analysis that accompanies the manuscript. These files are the reference copies.
+- `reproduced/` — fresh outputs created by the reproduction command. This directory is not part of the saved reference set.
 
 ## Setup
+
+Tested with Python 3.13.2. From the repository root:
 
 ```bash
 python3 -m venv .venv
@@ -51,17 +56,41 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+The packages installed by that command are pinned in `requirements.txt`. The scientific stack used for the verified run is pandas 3.1.1, numpy 2.5.4, matplotlib 3.11.2, statsmodels 0.15.0, scipy 1.18.1, patsy 1.0.3, formulaic 1.2.2, and openpyxl 3.1.5.
+
 ## Run
 
-```bash
-python run_analysis.py
-```
-
-The input response values for all 27 formulations are available in Sheet1 of lead_acid_data.xlsx. The scoring and sensitivity analysis are implemented in src/lead_acid/pipeline.py. The command above generates reproduced/17_composite_score_ranking.xlsx for Table D1 and reproduced/20_composite_score_sensitivity.xlsx for the weighting analysis. A copy of the sensitivity workbook is available in RESULTS/, with the scenario summaries in Summary and the scores and ranks for all formulations in All_formulations.
+From the repository root, with the virtual environment activated:
 
 ```bash
-python run_analysis.py --input lead_acid_data.xlsx --output reproduced
+MPLBACKEND=Agg python run_analysis.py --input lead_acid_data.xlsx --output reproduced
 ```
+
+`--input` and `--output` both remain optional. The default input is `lead_acid_data.xlsx` in the repository root, and the default output directory is `outputs/lead_acid_stats_outputs`. Passing either flag overrides only that path.
+
+The same command writes:
+
+- `reproduced/10_model_comparison.xlsx` for Table 2
+- `reproduced/17_composite_score_ranking.xlsx` for Table D1
+- `reproduced/16_effect_size_summary.xlsx` for Tables E1–E4
+- `reproduced/20_composite_score_sensitivity.xlsx` for the composite-score weighting analysis
+
+### Manuscript tables
+
+| Manuscript table | Generated workbook | Worksheet |
+| --- | --- | --- |
+| Table 2 | `reproduced/10_model_comparison.xlsx` | `Model_comparison` |
+| Table D1 | `reproduced/17_composite_score_ranking.xlsx` | `Sheet1` |
+| Table E1 | `reproduced/16_effect_size_summary.xlsx` | `RevRatio_effect_sizes` |
+| Table E2 | `reproduced/16_effect_size_summary.xlsx` | `DeltaE_effect_sizes` |
+| Table E3 | `reproduced/16_effect_size_summary.xlsx` | `Overpot_effect_sizes` |
+| Table E4 | `reproduced/16_effect_size_summary.xlsx` | `Rct_effect_sizes` |
+
+Table 2 reports R², adjusted R², AIC, and BIC for the reduced factorial model and the quadratic model. The preferred-model column follows `BEST_MODEL` in `src/lead_acid/config.py`. Tables E1–E4 are Type II ANOVA tables for that preferred model, including partial eta-squared. Table D1 ranks all 27 formulations by the equal-weight composite score. The sensitivity workbook uses worksheets `Summary` and `All_formulations`. A saved copy of that workbook is in `RESULTS/20_composite_score_sensitivity.xlsx`.
+
+### Saved outputs and fresh outputs
+
+`RESULTS/` is the archived output directory. It contains the workbooks and figures retained with the repository, including `RESULTS/10_model_comparison.xlsx`, `RESULTS/17_composite_score_ranking.xlsx`, and `RESULTS/16_effect_size_summary.xlsx`. `reproduced/` is created only when the command above is run. It is a new directory of the same analysis, suitable for checking that a clean environment reproduces the reference tables. The two directories are separate: replacing or deleting `reproduced/` does not change the saved files in `RESULTS/`.
 
 ## Notes
 

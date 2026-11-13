@@ -13,8 +13,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Run lead-acid analysis pipeline.")
     parser.add_argument(
         "--input",
-        default=str(ROOT / "data" / "lead_acid_data.xlsx"),
-        help="Path to input Excel file (default: data/lead_acid_data.xlsx).",
+        default=str(ROOT / "lead_acid_data.xlsx"),
+        help="Path to input Excel file (default: lead_acid_data.xlsx in the repository root).",
     )
     parser.add_argument(
         "--output",
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     if not input_path.exists():
         raise FileNotFoundError(
             f"Input file not found: {input_path}\n"
-            "Place your Excel file at data/lead_acid_data.xlsx "
-            "or pass --input with a repo-relative path."
+            "Place your Excel file at lead_acid_data.xlsx in the repository root "
+            "or pass --input with an explicit path."
         )
     run_pipeline(str(input_path), args.output)
