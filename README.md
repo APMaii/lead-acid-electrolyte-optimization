@@ -57,15 +57,10 @@ pip install -r requirements.txt
 python run_analysis.py
 ```
 
-By default, the script uses repo-relative paths:
-
-- input: `data/lead_acid_data.xlsx`
-- output: `outputs/lead_acid_stats_outputs`
-
-You can still override them if needed:
+The input response values for all 27 formulations are available in Sheet1 of lead_acid_data.xlsx. The scoring and sensitivity analysis are implemented in src/lead_acid/pipeline.py. The command above generates reproduced/17_composite_score_ranking.xlsx for Table D1 and reproduced/20_composite_score_sensitivity.xlsx for the weighting analysis. A copy of the sensitivity workbook is available in RESULTS/, with the scenario summaries in Summary and the scores and ranks for all formulations in All_formulations.
 
 ```bash
-python run_analysis.py --input "data/lead_acid_data.xlsx" --output "outputs/custom_run"
+python run_analysis.py --input lead_acid_data.xlsx --output reproduced
 ```
 
 ## Notes

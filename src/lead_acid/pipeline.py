@@ -48,6 +48,7 @@ def run_pipeline(input_path: str, output_path: str) -> None:
     effect_writer.close()
 
     # Composite score
+    '''
     opt = df.copy()
     opt["RevRatio_z"] = _zscore(opt["RevRatio"])
     opt["DeltaE_good"] = _zscore(-opt["DeltaE"])
@@ -58,6 +59,68 @@ def run_pipeline(input_path: str, output_path: str) -> None:
     opt[
         ["Sample", "Mg", "Al", "P", "RevRatio", "DeltaE", "Overpot", "Rct", "CompositeScore"]
     ].to_excel(outdir / "17_composite_score_ranking.xlsx", index=False)
+    '''
+
+        # Composite score
+    opt = df.copy()
+    opt["RevRatio_z"] = _zscore(opt["RevRatio"])
+    opt["DeltaE_good"] = _zscore(-opt["DeltaE"])
+    opt["Overpot_z"] = _zscore(opt["Overpot"])
+    opt["Rct_good"] = _zscore(-opt["Rct"])
+
+    score_columns = ["RevRatio_z", "DeltaE_good", "Overpot_z", "Rct_good"]
+    opt["CompositeScore"] = opt[score_columns].mean(axis=1)
+    opt = opt.sort_values("CompositeScore", ascending=False)
+
+    opt[
+        ["Sample", "Mg", "Al", "P", "RevRatio", "DeltaE",
+         "Overpot", "Rct", "CompositeScore"]
+    ].to_excel(outdir / "17_composite_score_ranking.xlsx", index=False)
+
+    # Appendix D sensitivity analysis
+    # Weight order is RevRatio, DeltaE, Overpot, Rct.
+    scenarios = {
+        "Equal": [0.25, 0.25, 0.25, 0.25],
+        "RevRatio": [0.55, 0.15, 0.15, 0.15],
+        "DeltaE": [0.15, 0.55, 0.15, 0.15],
+        "Overpot": [0.15, 0.15, 0.55, 0.15],
+        "Rct": [0.15, 0.15, 0.15, 0.55],
+    }
+
+    detail = opt[["Sample", *score_columns]].copy()
+    equal_rank = opt["CompositeScore"].rank(ascending=False, method="average")
+    summary = []
+
+    for scenario, weights in scenarios.items():
+        if scenario == "Equal":
+            score = opt["CompositeScore"]
+        else:
+            score = opt[score_columns].mul(weights).sum(axis=1)
+
+        rank = score.rank(ascending=False, method="average")
+        detail[f"{scenario}_score"] = score
+        detail[f"{scenario}_rank"] = rank
+
+        top_five = detail.sort_values([f"{scenario}_rank", "Sample"])["Sample"].head(5)
+        summary.append({
+            "Scenario": scenario,
+            "RevRatio_weight": weights[0],
+            "DeltaE_weight": weights[1],
+            "Overpot_weight": weights[2],
+            "Rct_weight": weights[3],
+            "Top_5_samples": ", ".join(map(str, top_five)),
+            "Sample_15_rank": rank.loc[opt["Sample"].eq(15)].iloc[0],
+            "Spearman_rho_vs_equal": rank.corr(equal_rank),
+        })
+
+    with pd.ExcelWriter(
+        outdir / "20_composite_score_sensitivity.xlsx", engine="openpyxl"
+    ) as writer:
+        pd.DataFrame(summary).to_excel(writer, sheet_name="Summary", index=False)
+        detail.to_excel(writer, sheet_name="All_formulations", index=False)
+
+
+
 
     print("=" * 80)
     print("Statistical analysis complete.")
