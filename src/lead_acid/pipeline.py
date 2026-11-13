@@ -71,6 +71,8 @@ def run_pipeline(input_path: str, output_path: str) -> None:
         if "sum_sq" in anova_tbl.columns:
             ss_resid = anova_tbl.loc["Residual", "sum_sq"]
             anova_tbl["partial_eta_sq"] = anova_tbl["sum_sq"] / (anova_tbl["sum_sq"] + ss_resid)
+            # The effect formula gives 0.5 on the Residual row. Leave that cell blank.
+            anova_tbl.loc["Residual", "partial_eta_sq"] = float("nan")
         anova_tbl["model_used"] = "Reduced Factorial" if BEST_MODEL[y] == "reduced" else "Quadratic"
         anova_tbl.to_excel(effect_writer, sheet_name=f"{y}_effect_sizes")
     effect_writer.close()
